@@ -146,7 +146,7 @@ RUN if composer show | grep spiral/roadrunner-cli >/dev/null; then \
     echo "`spiral/roadrunner-cli` package is not installed. Exiting..."; exit 1; \
     fi
 
-RUN chmod +x rr /usr/local/bin/start-container
+RUN chmod +x rr /usr/local/bin/start-container /usr/local/bin/healthcheck
 
 EXPOSE 8000
 EXPOSE 6001

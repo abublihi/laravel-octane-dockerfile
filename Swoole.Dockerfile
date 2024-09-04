@@ -140,10 +140,10 @@ RUN composer install \
     --no-dev \
     && composer clear-cache
 
-RUN chmod +x /usr/local/bin/start-container
+RUN chmod +x /usr/local/bin/start-container /usr/local/bin/healthcheck
 
 EXPOSE 8000
 
 ENTRYPOINT ["start-container"]
 
-HEALTHCHECK --start-period=5s --interval=2s --timeout=5s --retries=8 CMD php artisan octane:status || exit 1
+HEALTHCHECK --start-period=5s --interval=2s --timeout=5s --retries=8 CMD healthcheck || exit 1

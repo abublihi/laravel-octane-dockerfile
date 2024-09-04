@@ -139,7 +139,7 @@ RUN composer install \
     --no-dev \
     && composer clear-cache
 
-RUN chmod +x /usr/local/bin/start-container
+RUN chmod +x /usr/local/bin/start-container /usr/local/bin/healthcheck
 
 EXPOSE 8000
 
