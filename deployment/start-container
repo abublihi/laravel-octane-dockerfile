@@ -3,21 +3,14 @@ set -e
 
 container_mode=${CONTAINER_MODE:-"http"}
 octane_server=${OCTANE_SERVER}
-running_migrations_and_seeders=${RUNNING_MIGRATIONS_AND_SEEDERS:-"false"}
 
 echo "Container mode: $container_mode"
 
 initialStuff() {
-    php artisan storage:link; \
     php artisan optimize:clear; \
     php artisan event:cache; \
     php artisan config:cache; \
     php artisan route:cache;
-
-    if [ ${running_migrations_and_seeders} = "true" ]; then
-        echo "Running migrations and seeding database ..."
-        php artisan migrate --isolated --seed --force;
-    fi
 }
 
 if [ "$1" != "" ]; then
@@ -26,24 +19,25 @@ elif [ ${container_mode} = "http" ]; then
     echo "Octane Server: $octane_server"
     initialStuff
     if [ ${octane_server}  = "frankenphp" ]; then
-        exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.frankenphp.conf
+        exec php artisan octane:start --server=frankenphp --host=0.0.0.0 --port=8000 --admin-port=2019
+        # exec php artisan octane:start --server=frankenphp --host=localhost --port=443 --admin-port=2019 --https --http-redirect
     elif [ ${octane_server}  = "swoole" ]; then
-        exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.swoole.conf
+        # If you are using k8s, then you have to set the number of workers and task works because it's will try to occupy the memory until it's reaches the limit that will make the container crashes
+        # exec php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000 --workers=8 --task-workers=4
+        exec php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000
     elif [ ${octane_server}  = "roadrunner" ]; then
-        exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.roadrunner.conf
+        exec php artisan octane:start --server=roadrunner --host=0.0.0.0 --port=8000 --rpc-port=6001 --rr-config=.rr.yaml
     else
         echo "Invalid Octane server supplied."
         exit 1
     fi
 elif [ ${container_mode} = "horizon" ]; then
     initialStuff
-    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.horizon.conf
-elif [ ${container_mode} = "scheduler" ]; then
-    initialStuff
-    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.scheduler.conf
+    exec php artisan horizon
 elif [ ${container_mode} = "worker" ]; then
     initialStuff
-    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.worker.conf
+    echo "Running worker command: $WORKER_COMMAND"
+    exec $WORKER_COMMAND & echo $! > /var/run/worker.pid # please do not remove `& echo $! > /var/run/worker.pid` as this will be used to check your worker healthy status
 else
     echo "Container mode mismatched."
     exit 1
