@@ -147,8 +147,6 @@ RUN composer install \
 
 RUN chmod +x /usr/local/bin/start-container
 
-RUN cat deployment/utilities.sh >> ~/.bashrc
-
 EXPOSE 8000
 EXPOSE 443
 EXPOSE 443/udp

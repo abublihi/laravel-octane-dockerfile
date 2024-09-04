@@ -145,8 +145,6 @@ RUN if composer show | grep spiral/roadrunner-cli >/dev/null; then \
 
 RUN chmod +x rr /usr/local/bin/start-container
 
-RUN cat deployment/utilities.sh >> ~/.bashrc
-
 EXPOSE 8000
 EXPOSE 6001
 
