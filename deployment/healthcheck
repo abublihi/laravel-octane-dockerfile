@@ -8,8 +8,7 @@ if [ ${container_mode} = "http" ]; then
 elif [ ${container_mode} = "horizon" ]; then
     exec php artisan horizon:status
 elif [ ${container_mode} = "worker" ]; then
-    process_id="$(cat /var/run/worker.pid)"
-    echo "Process id: $process_id"
+    process_id=1
     if [ -f "/proc/$process_id/status" ]; then
         echo "Worker proccess: running"
         exit 0

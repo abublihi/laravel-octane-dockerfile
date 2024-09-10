@@ -37,7 +37,7 @@ elif [ ${container_mode} = "horizon" ]; then
 elif [ ${container_mode} = "worker" ]; then
     initialStuff
     echo "Running worker command: $WORKER_COMMAND"
-    exec $WORKER_COMMAND & echo $! > /var/run/worker.pid # please do not remove `& echo $! > /var/run/worker.pid` as this will be used to check your worker healthy status
+    exec $WORKER_COMMAND # will be monitoring process with PID=1, check the healthcheck
 else
     echo "Container mode mismatched."
     exit 1
